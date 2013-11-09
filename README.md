@@ -1,4 +1,53 @@
-bootstrap-flash-messenger
-=========================
+Bootstrap Flash Messenger
+====================
 
-Simple implementation of ZF2 flash messengers using bootstrap. Contains easy helpers that will save you a LOT of time.
+A simple module that makes flash messengers as simple as they are in CakePHP. And the best part is it generates beautifully formatted Bootstrap alerts!
+
+Installation
+--------------
+1) Add the following requirement to your projects composer.json file.
+
+Within the "require" section:
+
+```php
+"zf-hipsters/bootstrap-flash-messenger": ">=1.0"
+```
+
+2) Open up your command line and run
+
+```
+php ./composer.phar update
+```
+
+2) Add 'FlashMessenger' to your /config/application.config.php modules
+
+
+Controller Plugin Examples
+--------------------------
+
+Simple success (this is the default namespace)
+```php
+$this->fm('You have been logged in.');
+```
+
+Error
+```php
+$this->fm('Your username and/or password were incorrect.', 'error');
+```
+
+Info
+```php
+$this->fm('Something cool happened!', 'info');
+```
+
+Warning
+```php
+$this->fm('Careful! Something bad could happen!', 'warning');
+```
+
+View Helper Example
+--------------------
+
+```php
+<?=$this->fm()?>
+```
