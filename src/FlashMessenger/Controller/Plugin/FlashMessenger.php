@@ -6,37 +6,133 @@
  * @copyright Copyright (c) 2013 ZF-Hipsters
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache Licence, Version 2.0
  */
-namespace FlashMessenger\Controller\Plugin;
 
-use Zend\Mvc\Controller\Plugin\AbstractPlugin;
+namespace FlashMessenger\View\Helper;
+
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
+
+use Zend\View\Helper\AbstractHelper;
+use Zend\View\Model\ViewModel;
+use Zend\View\Renderer\PhpRenderer;
+use Zend\View\Resolver\AggregateResolver;
+use Zend\View\Resolver\TemplatePathStack;
 
 /**
  * Class FlashMessenger
- * @package FlashMessenger\Controller\Plugin
+ * @package FlashMessenger\View\Helper
  */
-class FlashMessenger extends AbstractPlugin
+class FlashMessenger extends AbstractHelper implements ServiceLocatorAwareInterface
 {
+    /**
+     * @var null
+     */
+    protected $renderer = null;
 
     /**
-     * Control Plugin
-     *
-     * @param $message
-     * @param string $namespace
-     * @return \Zend\Mvc\Controller\Plugin\FlashMessenger
+     * Default namespaces
+     * @var array
      */
-    public function __invoke($message, $namespace = 'success')
-    {
-        $fm = new \Zend\Mvc\Controller\Plugin\FlashMessenger();
-        $fm->setNamespace($namespace);
+    protected $namespaces = array(
+        'success',
+        'error',
+        'info',
+        'warning'
+    );
 
-        if (is_array($message)) {
-            foreach ($message as $msg) {
-                $fm->addMessage($msg);
-            }
-        } else {
-            $fm->addMessage($message);
+    /**
+     * Flash Messenger View Helper
+     * @return string
+     */
+    public function __invoke($namespace = null)
+    {
+
+        $flashMessenger = new \Zend\Mvc\Controller\Plugin\FlashMessenger;
+        $messageString = '';
+
+        $namespaces = $this->namespaces;
+
+        if (!is_null($namespace)) {
+           $namespaces = array($namespace);
         }
 
-        return $fm;
+        foreach ( $namespaces as $ns ) {
+
+            $flashMessenger->setNamespace( $ns );
+            $messages = array_merge(
+                $flashMessenger->getMessages(),
+                $flashMessenger->getCurrentMessages()
+            );
+
+            if (empty($messages)) {
+                continue;
+            }
+
+            $viewModel = new ViewModel(array(
+                'namespace' => $ns,
+                'messages' => implode( '<br />', $messages )
+            ));
+
+            if ($this->getRenderer()->resolver('flash-messenger/' . $ns)) {
+                $viewModel->setTemplate('flash-messenger/' . $ns);
+            } else {
+                $viewModel->setTemplate('flash-messenger/default');
+            }
+
+            $messageString .= $this->getRenderer()->render($viewModel);
+        }
+
+        return $messageString ;
+    }
+
+    /**
+     * Return the PHP Renderer to render the partials
+     * @return null|PhpRenderer
+     */
+    protected function getRenderer()
+    {
+        if (is_null($this->renderer)) {
+            $renderer = new PhpRenderer();
+            $resolver = new AggregateResolver();
+            $stack = new TemplatePathStack();
+
+            $config = $this->getServiceLocator()->get('Config');
+
+            foreach($config['view_manager']["template_path_stack"] as $path) {
+                $stack->addPath($path);
+            }
+
+            $resolver->attach($stack);
+            $renderer->setResolver($resolver);
+
+
+
+            $this->renderer = $renderer;
+        }
+
+        return $this->renderer;
+    }
+
+    /**
+     * Set serviceManager instance
+     *
+     * @param  ServiceLocatorInterface $serviceLocator
+     * @return void
+     */
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    {
+        $this->serviceLocator = $serviceLocator;
+    }
+
+    /**
+     * Retrieve serviceManager instance
+     *
+     * @return ServiceLocatorInterface
+     */
+    public function getServiceLocator()
+    {
+        $sm = $this->serviceLocator->getServiceLocator();
+        return $sm;
+
     }
 }
