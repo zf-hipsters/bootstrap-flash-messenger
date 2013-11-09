@@ -44,13 +44,26 @@ class FlashMessenger extends AbstractHelper implements ServiceLocatorAwareInterf
      * Flash Messenger View Helper
      * @return string
      */
-    public function __invoke()
+    public function __invoke($namespace = null)
     {
 
         $flashMessenger = new \Zend\Mvc\Controller\Plugin\FlashMessenger;
         $messageString = '';
 
-        foreach ( $this->namespaces as $ns ) {
+        $namespaces = $this->namespaces;
+
+        if (!is_null($namespace)) {
+            
+            // Allow an array or single
+            if (!is_array($namespace)) {
+                $namespaces = array($namespace);     
+            } else {
+                $namespaces = $namespace;
+            }
+           
+        }
+
+        foreach ( $namespaces as $ns ) {
 
             $flashMessenger->setNamespace( $ns );
             $messages = array_merge(
