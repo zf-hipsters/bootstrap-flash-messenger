@@ -1,0 +1,28 @@
+{
+    "name": "zf-hipsters/bootstrap-flash-messenger",
+    "description": "Simple implementation of ZF2 flash messengers using bootstrap. Contains easy helpers that will save you a LOT of time.",
+    "type": "library",
+    "keywords": [
+        "zf2 flash bootstrap flashmessenger"
+    ],
+    "homepage": "https://github.com/zf-hipsters/bootstrap-flash-messenger",
+    "authors": [
+        {
+            "name": "Aaron Weatherall",
+            "email": "aaron@weatherall.net.au",
+            "homepage": "http://www.aaronweatherall.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": ">2.2.0rc1"
+    },
+    "autoload": {
+        "psr-0": {
+            "FlashMessenger": "src/"
+        },
+        "classmap": [
+            "./Module.php"
+        ]
+    }
+}
