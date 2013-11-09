@@ -52,6 +52,16 @@ return $this->redirect()->toRoute('dashboard');
 View Helper Example
 --------------------
 
+Default usage
 ```php
 <?=$this->fm()?>
+```
+
+Custom Namespace(s)
+```php
+<?=$this->fm('exciting_namespace')?>
+```
+
+```php
+<?=$this->fm(array('mynamespace1', 'mynamespace2'))?>
 ```
