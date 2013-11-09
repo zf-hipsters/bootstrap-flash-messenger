@@ -28,21 +28,25 @@ Controller Plugin Examples
 Simple success (this is the default namespace)
 ```php
 $this->fm('You have been logged in.');
+return $this->redirect()->toRoute('dashboard');
 ```
 
 Error
 ```php
 $this->fm('Your username and/or password were incorrect.', 'error');
+return $this->redirect()->toRoute('authorize/login');
 ```
 
 Info
 ```php
 $this->fm('Something cool happened!', 'info');
+return $this->redirect()->toRoute('home');
 ```
 
 Warning
 ```php
 $this->fm('Careful! Something bad could happen!', 'warning');
+return $this->redirect()->toRoute('dashboard');
 ```
 
 View Helper Example
