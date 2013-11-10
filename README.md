@@ -65,3 +65,11 @@ Custom Namespace(s)
 ```php
 <?=$this->fm(array('mynamespace1', 'mynamespace2'))?>
 ```
+
+Customising templates
+---------------------
+
+Customising templates and changing the titles is super easy! Ensure that FlashMessenger is somewhere at the top of your list in application.config.php
+Now, copy the vendor/zf-hipsters/bootstrap-flash-messenger/view/flash-messenger folder to your eg module/application/view folder.
+
+That's it, customise to your hearts content and they will overload the default files!
