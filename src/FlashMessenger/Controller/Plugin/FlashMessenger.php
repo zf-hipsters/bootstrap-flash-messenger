@@ -6,133 +6,37 @@
  * @copyright Copyright (c) 2013 ZF-Hipsters
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache Licence, Version 2.0
  */
+namespace FlashMessenger\Controller\Plugin;
 
-namespace FlashMessenger\View\Helper;
-
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-
-use Zend\View\Helper\AbstractHelper;
-use Zend\View\Model\ViewModel;
-use Zend\View\Renderer\PhpRenderer;
-use Zend\View\Resolver\AggregateResolver;
-use Zend\View\Resolver\TemplatePathStack;
+use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 
 /**
  * Class FlashMessenger
- * @package FlashMessenger\View\Helper
+ * @package FlashMessenger\Controller\Plugin
  */
-class FlashMessenger extends AbstractHelper implements ServiceLocatorAwareInterface
+class FlashMessenger extends AbstractPlugin
 {
-    /**
-     * @var null
-     */
-    protected $renderer = null;
 
     /**
-     * Default namespaces
-     * @var array
-     */
-    protected $namespaces = array(
-        'success',
-        'error',
-        'info',
-        'warning'
-    );
-
-    /**
-     * Flash Messenger View Helper
-     * @return string
-     */
-    public function __invoke($namespace = null)
-    {
-
-        $flashMessenger = new \Zend\Mvc\Controller\Plugin\FlashMessenger;
-        $messageString = '';
-
-        $namespaces = $this->namespaces;
-
-        if (!is_null($namespace)) {
-           $namespaces = array($namespace);
-        }
-
-        foreach ( $namespaces as $ns ) {
-
-            $flashMessenger->setNamespace( $ns );
-            $messages = array_merge(
-                $flashMessenger->getMessages(),
-                $flashMessenger->getCurrentMessages()
-            );
-
-            if (empty($messages)) {
-                continue;
-            }
-
-            $viewModel = new ViewModel(array(
-                'namespace' => $ns,
-                'messages' => implode( '<br />', $messages )
-            ));
-
-            if ($this->getRenderer()->resolver('flash-messenger/' . $ns)) {
-                $viewModel->setTemplate('flash-messenger/' . $ns);
-            } else {
-                $viewModel->setTemplate('flash-messenger/default');
-            }
-
-            $messageString .= $this->getRenderer()->render($viewModel);
-        }
-
-        return $messageString ;
-    }
-
-    /**
-     * Return the PHP Renderer to render the partials
-     * @return null|PhpRenderer
-     */
-    protected function getRenderer()
-    {
-        if (is_null($this->renderer)) {
-            $renderer = new PhpRenderer();
-            $resolver = new AggregateResolver();
-            $stack = new TemplatePathStack();
-
-            $config = $this->getServiceLocator()->get('Config');
-
-            foreach($config['view_manager']["template_path_stack"] as $path) {
-                $stack->addPath($path);
-            }
-
-            $resolver->attach($stack);
-            $renderer->setResolver($resolver);
-
-
-
-            $this->renderer = $renderer;
-        }
-
-        return $this->renderer;
-    }
-
-    /**
-     * Set serviceManager instance
+     * Control Plugin
      *
-     * @param  ServiceLocatorInterface $serviceLocator
-     * @return void
+     * @param $message
+     * @param string $namespace
+     * @return \Zend\Mvc\Controller\Plugin\FlashMessenger
      */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    public function __invoke($message, $namespace = 'success')
     {
-        $this->serviceLocator = $serviceLocator;
-    }
+        $fm = new \Zend\Mvc\Controller\Plugin\FlashMessenger();
+        $fm->setNamespace($namespace);
 
-    /**
-     * Retrieve serviceManager instance
-     *
-     * @return ServiceLocatorInterface
-     */
-    public function getServiceLocator()
-    {
-        $sm = $this->serviceLocator->getServiceLocator();
-        return $sm;
+        if (is_array($message)) {
+            foreach ($message as $msg) {
+                $fm->addMessage($msg);
+            }
+        } else {
+            $fm->addMessage($message);
+        }
 
+        return $fm;
     }
 }
