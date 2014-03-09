@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ZF-Hipsters Bootstrap Flash Messenger (https://github.com/zf-hipsters)
  *
@@ -6,6 +7,7 @@
  * @copyright Copyright (c) 2013 ZF-Hipsters
  * @license   http://www.apache.org/licenses/LICENSE-2.0 Apache Licence, Version 2.0
  */
+
 namespace FlashMessenger\Controller\Plugin;
 
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
@@ -14,8 +16,9 @@ use Zend\Mvc\Controller\Plugin\AbstractPlugin;
  * Class FlashMessenger
  * @package FlashMessenger\Controller\Plugin
  */
-class FlashMessenger extends AbstractPlugin
-{
+class FlashMessenger extends AbstractPlugin {
+
+    private $fm = null;
 
     /**
      * Control Plugin
@@ -24,19 +27,21 @@ class FlashMessenger extends AbstractPlugin
      * @param string $namespace
      * @return \Zend\Mvc\Controller\Plugin\FlashMessenger
      */
-    public function __invoke($message, $namespace = 'success')
-    {
-        $fm = new \Zend\Mvc\Controller\Plugin\FlashMessenger();
-        $fm->setNamespace($namespace);
+    public function __invoke($message, $namespace = 'success') {
+        if ($this->fm == null) {
+            $this->fm = new \Zend\Mvc\Controller\Plugin\FlashMessenger();
+        }
+        $this->fm->setNamespace($namespace);
 
         if (is_array($message)) {
             foreach ($message as $msg) {
-                $fm->addMessage($msg);
+                $this->fm->addMessage($msg);
             }
         } else {
-            $fm->addMessage($message);
+            $this->fm->addMessage($message);
         }
 
-        return $fm;
+        return $this->fm;
     }
+
 }
